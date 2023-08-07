@@ -1,42 +1,68 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+:root {
+  --green: rgb(128, 255, 0);
+  --purple: rgb(151, 13, 151);
+}
+
+body {
+}
+
+.header {
+  width: 90vw;
+  max-width: 1600px;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-rows: 1fr 1fr;
+  color: var(--green);
+}
+
+.header * {
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.highscore,
+.score {
+  grid-row: span 2;
+  font-size: 2em;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.gameboard {
+  width: 90vw;
+  max-width: 1600px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 266px);
+  justify-content: space-around;
+  align-items: center;
+  gap: 50px;
 }
 
 .card {
-  padding: 2em;
+  border: 8px solid #ffffff00;
+  border-radius: 24px;
+  box-shadow: #0000003d 0px 3px 8px;
+  display: grid;
+  grid-template-columns: 250px;
+  grid-template-rows: 250px 60px;
+  overflow: hidden;
 }
 
-.read-the-docs {
-  color: #888;
+.card:hover {
+  border-color: var(--purple);
+}
+
+img {
+}
+
+.card > div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--green);
+  color: var(--purple);
+  font-size: 2.5em;
+  font-weight: 900;
+}
+
+#root > p {
+  font-size: 4em;
 }
