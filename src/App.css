@@ -1,18 +1,22 @@
 :root {
   --green: rgb(128, 255, 0);
   --purple: rgb(151, 13, 151);
+  --headersize: 180px;
 }
 
-body {
+h2 {
+  font-size: 1.25em;
 }
 
 .header {
-  width: 90vw;
+  width: 100vw;
   max-width: 1600px;
   display: grid;
   grid-auto-flow: column;
   grid-template-columns: 1fr auto 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-rows: calc(var(--headersize) * 1 / 2) calc(
+      var(--headersize) * 1 / 2
+    );
   color: var(--green);
 }
 
@@ -24,16 +28,15 @@ body {
 .score {
   grid-row: span 2;
   font-size: 2em;
+  font-weight: 900;
+  align-self: end;
 }
 
 .gameboard {
-  width: 90vw;
-  max-width: 1600px;
+  width: 100vw;
   display: grid;
-  grid-template-columns: repeat(auto-fit, 266px);
-  justify-content: space-around;
+  justify-content: center;
   align-items: center;
-  gap: 50px;
 }
 
 .card {
@@ -41,8 +44,8 @@ body {
   border-radius: 24px;
   box-shadow: #0000003d 0px 3px 8px;
   display: grid;
-  grid-template-columns: 250px;
-  grid-template-rows: 250px 60px;
+  grid-template-columns: 100%;
+  grid-template-rows: 4fr 1fr;
   overflow: hidden;
 }
 
@@ -50,19 +53,69 @@ body {
   border-color: var(--purple);
 }
 
-img {
-}
-
 .card > div {
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: var(--green);
   color: var(--purple);
-  font-size: 2.5em;
+  font-size: 0.6em;
   font-weight: 900;
+}
+
+.card > div.name-hidden {
+  color: var(--green);
 }
 
 #root > p {
   font-size: 4em;
+}
+
+@media (max-width: 48em) {
+  :root {
+    --headersize: 150px;
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  h2 {
+    font-size: 1em;
+  }
+
+  #root > p {
+    font-size: 2em;
+  }
+
+  .highscore,
+  .score {
+    grid-row: span 2;
+    font-size: 1.5em;
+  }
+}
+
+@media (max-width: 40em) {
+  :root {
+    --headersize: 120px;
+  }
+
+  h1 {
+    font-size: 1em;
+  }
+
+  h2 {
+    font-size: 0.6em;
+  }
+
+  #root > p {
+    font-size: 1em;
+  }
+
+  .highscore,
+  .score {
+    grid-row: span 2;
+    font-size: 1em;
+  }
 }
