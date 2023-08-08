@@ -17,6 +17,65 @@ function Score({ score }) {
   );
 }
 
+function Modal({ success, newHighscore, level }) {
+  return (
+    <>
+      {level === 0 && (
+        <div
+          className="modal"
+          style={{
+            backgroundColor: "#000000cb",
+            width: "100%",
+            height: "100%",
+            marginTop: "0",
+            padding: "5vw",
+          }}
+        >
+          <img
+            src="./src/assets/instructions.png"
+            style={{ width: "min(70vh, 70vw)", height: "min(70vh, 70vw)" }}
+          ></img>
+          <p style={{ fontSize: "min(max(4vh, 20px), max(4vw, 20px))" }}>
+            Welcome to my little Rick and Morty memory card game. Try to click
+            each memory card only once. Can you push the highscore to new
+            heights?
+          </p>
+        </div>
+      )}
+      {success === true && (
+        <div className="modal">
+          <img
+            src="./src/assets/success.png"
+            style={{ width: "min(60vh, 60vw)", height: "min(60vh, 60vw)" }}
+          ></img>
+          <p style={{ fontSize: "min(max(4vh, 32px), max(4vw, 32px))" }}>
+            You made it! But level {level} will be tougher...
+          </p>
+        </div>
+      )}
+      {success === false && (
+        <div className="modal">
+          <p style={{ fontSize: "min(max(5vh, 40px), max(5vw, 40px))" }}>
+            Game over!
+          </p>
+          <img
+            src="./src/assets/gameover.png"
+            style={{ width: "min(50vh, 50vw)", height: "min(50vh, 50vw)" }}
+          ></img>
+          {newHighscore === true && (
+            <p style={{ fontSize: "min(max(4vh, 32px), max(4vw, 32px))" }}>
+              But hey, it's a new highscore!
+            </p>
+          )}
+          <p style={{ fontSize: "min(max(4vh, 32px), max(4vw, 32px))" }}>
+            Can you do even better?
+          </p>
+        </div>
+      )}
+    </>
+  );
+}
+
 function Card({ level, numCol, character, onClick, fade }) {
   function handleClick() {
     return onClick(character.id);
@@ -30,12 +89,12 @@ function Card({ level, numCol, character, onClick, fade }) {
   let cardStyle;
   if (fade === "in") {
     cardStyle = {
-      animation: "fadeIn 0.5s ease-in-out",
+      opacity: "1",
       gridTemplateRows: `min(calc((100vh - var(--headersize)) * 0.75 / ${numCol} - 16px), calc(75vw / ${numCol}) - 16px) min(max(calc((100vh - var(--headersize)) * 0.75 / ${numCol} / 4 - 16px), 20px), max(calc(75vw / ${numCol} / 4 - 16px), 20px))`,
     };
   } else if (fade === "out") {
     cardStyle = {
-      animation: "fadeOut 0.5s ease-in-out",
+      opacity: "0",
       gridTemplateRows: `min(calc((100vh - var(--headersize)) * 0.75 / ${numCol} - 16px), calc(75vw / ${numCol}) - 16px) min(max(calc((100vh - var(--headersize)) * 0.75 / ${numCol} / 4 - 16px), 20px), max(calc(75vw / ${numCol} / 4 - 16px), 20px))`,
     };
   } else {
@@ -49,7 +108,7 @@ function Card({ level, numCol, character, onClick, fade }) {
     divStyle = {
       fontSize: `min(max(calc(((100vh - var(--headersize)) * 0.75 / ${numCol} / 4 - 16px) * 0.5), calc(20px * 0.3)), max(calc((75vw / ${numCol} / 4 - 16px) * 0.5), calc(20px * 0.3)))`,
     };
-  } else if (character.name.length < 33) {
+  } else if (character.name.length < 29) {
     divStyle = {
       fontSize: `min(max(calc(((100vh - var(--headersize)) * 0.75 / ${numCol} / 4 - 16px) * 0.4), calc(20px * 0.25)), max(calc((75vw / ${numCol} / 4 - 16px) * 0.4), calc(20px * 0.25)))`,
     };
@@ -114,9 +173,12 @@ function App() {
   const [guessed, setGuessed] = useState([]);
   const [characters, setCharacters] = useState([]);
   const [fade, setFade] = useState("in");
+  const [success, setSuccess] = useState(true);
+  const [modal, setModal] = useState(false);
+  const [startGame, setStartGame] = useState(false);
 
   const [level, setLevel] = useState(0);
-  const levels = [4, 9, 16, 25, 36, 49];
+  const levels = [4, 9, 16, 25, 36, 49, 0];
   let numCharacters = levels[level];
 
   function getRandomDataset(count) {
@@ -140,15 +202,12 @@ function App() {
     return ids;
   }
 
-  function fetchCards() {
+  function shuffleCards() {
     let characterInfos = [];
     let guardian = new Set();
     while (characterInfos.length < numCharacters) {
-      const randomId = Math.floor(Math.random() * data.length);
+      const randomId = Math.floor(Math.random() * numCharacters);
       if (guardian.has(randomId)) {
-        continue;
-      }
-      if (guessed.includes(randomId)) {
         continue;
       }
       const element = data[randomId];
@@ -160,18 +219,20 @@ function App() {
 
   async function getData(receivedData) {
     setFade("out");
-    await new Promise((resolve) => setTimeout(resolve, 400));
+    await new Promise((resolve) => setTimeout(resolve, 600));
     if (guessed.includes(receivedData)) {
       if (score > highscore) setHighscore(score);
+      setLevel(levels.length - 1);
+      await betweenLevels(false);
       setScore(0);
       nextLevel(0);
     } else {
       guessCorrect(receivedData);
-    }
-    if (available.length !== 1) {
-      nextRound();
-    } else {
-      nextLevel(level + 1);
+      if (available.length !== 1) {
+        nextRound();
+      } else {
+        nextLevel(level + 1);
+      }
     }
   }
 
@@ -184,25 +245,43 @@ function App() {
   }
 
   function nextRound() {
-    const newCards = fetchCards();
+    let newCards = characters;
+    while (newCards === characters) {
+      newCards = shuffleCards();
+    }
     setCharacters(newCards);
-    console.log(guessed);
-    setFade("in");
   }
 
-  function nextLevel(newLevel) {
+  async function betweenLevels(success) {
+    setSuccess(success);
+    setModal(true);
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    setModal(false);
+    return;
+  }
+
+  async function nextLevel(newLevel) {
+    if (newLevel > 0) await betweenLevels(true);
     setLevel(newLevel);
   }
 
+  async function startup(msec) {
+    await new Promise((resolve) => setTimeout(resolve, msec));
+    setStartGame(true);
+  }
+
+  startup(8000);
+
   useEffect(() => {
-    const dataset = getRandomDataset(numCharacters);
-    const fetchData = async () => {
-      const response = await fetch(url + `${dataset}`);
-      const apiData = await response.json();
-      setData(apiData);
-      console.log(apiData);
-    };
-    fetchData();
+    if (numCharacters > 0) {
+      const dataset = getRandomDataset(numCharacters);
+      const fetchData = async () => {
+        const response = await fetch(url + `${dataset}`);
+        const apiData = await response.json();
+        setData(apiData);
+      };
+      fetchData();
+    }
   }, [numCharacters]);
 
   useEffect(() => {
@@ -211,10 +290,14 @@ function App() {
       setAvailable(data);
       setGuessed([]);
       setIsBusy(false);
-      setFade("in");
     };
     reloadGameboard();
   }, [data]);
+
+  useEffect(() => {
+    setFade("in");
+    setSuccess(true);
+  }, [characters]);
 
   return (
     <>
@@ -224,12 +307,20 @@ function App() {
         <h2>Memory Card Game</h2>
         <Score score={score} />
       </div>
+      {!startGame && <Modal level={0} />}
       {!isBusy && (
         <Gameboard
           level={level}
           characters={characters}
           onClick={getData}
           fade={fade}
+        />
+      )}
+      {modal && (
+        <Modal
+          success={success}
+          level={level + 2}
+          newHighscore={score >= highscore}
         />
       )}
     </>
