@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 
+import image1 from "./assets/instructions.png";
+import image2 from "./assets/success.png";
+import image3 from "./assets/gameover.png";
+
 function Highscore({ highscore }) {
   return (
     <p className="highscore">
@@ -32,7 +36,7 @@ function Modal({ success, newHighscore, level }) {
           }}
         >
           <img
-            src="./assets/instructions.png"
+            src={image1}
             style={{ width: "min(70vh, 70vw)", height: "min(70vh, 70vw)" }}
           ></img>
           <p style={{ fontSize: "min(max(4vh, 20px), max(4vw, 20px))" }}>
@@ -45,7 +49,7 @@ function Modal({ success, newHighscore, level }) {
       {success === true && (
         <div className="modal">
           <img
-            src="./assets/success.png"
+            src={image2}
             style={{ width: "min(60vh, 60vw)", height: "min(60vh, 60vw)" }}
           ></img>
           <p style={{ fontSize: "min(max(4vh, 32px), max(4vw, 32px))" }}>
@@ -59,7 +63,7 @@ function Modal({ success, newHighscore, level }) {
             Game over!
           </p>
           <img
-            src="./assets/gameover.png"
+            src={image3}
             style={{ width: "min(50vh, 50vw)", height: "min(50vh, 50vw)" }}
           ></img>
           {newHighscore === true && (
