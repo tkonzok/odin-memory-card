@@ -9,45 +9,54 @@ function Score({ score }) {
   return <p className="score">Your score: {score}</p>;
 }
 
-function Card({ level, characters, character, onClick }) {
+function Card({ level, numCol, character, onClick }) {
   function handleClick() {
     return onClick(character.id);
   }
 
   let imgStyle;
-  if (characters.length < 10) {
-    imgStyle = {
-      width: "calc((100vh - var(--headersize)) / 5 * 4.5 / 5)",
+  imgStyle = {
+    width: `min(calc((100vh - var(--headersize)) * 0.75 / ${numCol} - 16px), calc(75vw / ${numCol} - 16px))`,
+  };
+
+  let cardStyle;
+  cardStyle = {
+    gridTemplateRows: `min(calc((100vh - var(--headersize)) * 0.75 / ${numCol} - 16px), calc(75vw / ${numCol}) - 16px) min(max(calc((100vh - var(--headersize)) * 0.75 / ${numCol} / 4 - 16px), 20px), max(calc(75vw / ${numCol} / 4 - 16px), 20px))`,
+  };
+
+  let divStyle;
+  if (character.name.length < 17) {
+    divStyle = {
+      fontSize: `min(max(calc(((100vh - var(--headersize)) * 0.75 / ${numCol} / 4 - 16px) * 0.5), calc(20px * 0.3)), max(calc((75vw / ${numCol} / 4 - 16px) * 0.5), calc(20px * 0.3)))`,
     };
-  } else if (characters.length < 17) {
-    imgStyle = {
-      width: "calc((100vh - var(--headersize)) / 6 * 4.5 / 5)",
-    };
-  } else if (characters.length < 21) {
-    imgStyle = {
-      width: "calc((100vh - var(--headersize)) / 7 * 4 / 5)",
-    };
-  } else if (characters.length < 31) {
-    imgStyle = {
-      width: "calc((100vh - var(--headersize)) / 8 * 4 / 5)",
+  } else if (character.name.length < 33) {
+    divStyle = {
+      fontSize: `min(max(calc(((100vh - var(--headersize)) * 0.75 / ${numCol} / 4 - 16px) * 0.4), calc(20px * 0.25)), max(calc((75vw / ${numCol} / 4 - 16px) * 0.4), calc(20px * 0.25)))`,
     };
   } else {
-    imgStyle = {
-      width: "calc((100vh - var(--headersize)) / 10 * 4 / 5)",
+    divStyle = {
+      fontSize: `min(max(calc(((100vh - var(--headersize)) * 0.75 / ${numCol} / 4 - 16px) * 0.3), calc(20px * 0.2)), max(calc((75vw / ${numCol} / 4 - 16px) * 0.3), calc(20px * 0.2)))`,
     };
   }
 
   return (
-    <button key={character.id} className="card" onClick={handleClick}>
+    <button
+      key={character.id}
+      className="card"
+      style={cardStyle}
+      onClick={handleClick}
+    >
       <img src={character.image} style={imgStyle}></img>
-      {level < 4 && <div>{character.name}</div>}
-      {level >= 4 && <div className="name-hidden">hidden</div>}
+      {level < 7 && <div style={divStyle}>{character.name}</div>}
+      {level >= 7 && <div className="name-hidden">hidden</div>}
     </button>
   );
 }
 
 function Gameboard({ level, characters, onClick }) {
   let cards = [];
+  let numCol = Math.ceil(Math.sqrt(characters.length));
+
   for (const character of characters) {
     cards.push(
       <Card
@@ -55,41 +64,16 @@ function Gameboard({ level, characters, onClick }) {
         character={character}
         level={level}
         onClick={onClick}
-        characters={characters}
+        numCol={numCol}
       />
     );
   }
 
   let gameboardStyle;
-  if (characters.length < 10) {
-    gameboardStyle = {
-      gridTemplateColumns: "repeat(3, calc((100vh - var(--headersize)) / 5))",
-    };
-  } else if (characters.length < 13) {
-    gameboardStyle = {
-      gridTemplateColumns: "repeat(3, calc((100vh - var(--headersize)) / 6))",
-    };
-  } else if (characters.length < 17) {
-    gameboardStyle = {
-      gridTemplateColumns: "repeat(4, calc((100vh - var(--headersize)) / 6))",
-    };
-  } else if (characters.length < 21) {
-    gameboardStyle = {
-      gridTemplateColumns: "repeat(4, calc((100vh - var(--headersize)) / 7))",
-    };
-  } else if (characters.length < 31) {
-    gameboardStyle = {
-      gridTemplateColumns: "repeat(5, calc((100vh - var(--headersize)) / 8))",
-    };
-  } else if (characters.length < 37) {
-    gameboardStyle = {
-      gridTemplateColumns: "repeat(6, calc((100vh - var(--headersize)) / 10))",
-    };
-  } else {
-    gameboardStyle = {
-      gridTemplateColumns: "repeat(7, calc((100vh - var(--headersize)) / 10))",
-    };
-  }
+
+  gameboardStyle = {
+    gridTemplateColumns: `repeat(${numCol}, min(calc((100vh - var(--headersize)) * 0.75 / ${numCol}), calc(75vw / ${numCol}))`,
+  };
 
   return (
     <div className="gameboard" style={gameboardStyle}>
@@ -110,7 +94,7 @@ function App() {
   const [characters, setCharacters] = useState([]);
 
   const [level, setLevel] = useState(0);
-  const levels = [3, 6, 9, 12, 16, 20, 25, 30, 36, 49];
+  const levels = [4, 9, 16, 25, 36, 49];
   let numCharacters = levels[level];
 
   function getRandomDataset(count) {
