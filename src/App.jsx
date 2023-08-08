@@ -2,14 +2,22 @@ import { useState, useEffect } from "react";
 import "./App.css";
 
 function Highscore({ highscore }) {
-  return <p className="highscore">Highscore: {highscore}</p>;
+  return (
+    <p className="highscore">
+      highscore <span style={{ color: "#fff" }}>{highscore}</span>
+    </p>
+  );
 }
 
 function Score({ score }) {
-  return <p className="score">Your score: {score}</p>;
+  return (
+    <p className="score">
+      <span style={{ color: "#fff" }}>{score}</span> your score
+    </p>
+  );
 }
 
-function Card({ level, numCol, character, onClick }) {
+function Card({ level, numCol, character, onClick, fade }) {
   function handleClick() {
     return onClick(character.id);
   }
@@ -20,9 +28,21 @@ function Card({ level, numCol, character, onClick }) {
   };
 
   let cardStyle;
-  cardStyle = {
-    gridTemplateRows: `min(calc((100vh - var(--headersize)) * 0.75 / ${numCol} - 16px), calc(75vw / ${numCol}) - 16px) min(max(calc((100vh - var(--headersize)) * 0.75 / ${numCol} / 4 - 16px), 20px), max(calc(75vw / ${numCol} / 4 - 16px), 20px))`,
-  };
+  if (fade === "in") {
+    cardStyle = {
+      animation: "fadeIn 0.5s ease-in-out",
+      gridTemplateRows: `min(calc((100vh - var(--headersize)) * 0.75 / ${numCol} - 16px), calc(75vw / ${numCol}) - 16px) min(max(calc((100vh - var(--headersize)) * 0.75 / ${numCol} / 4 - 16px), 20px), max(calc(75vw / ${numCol} / 4 - 16px), 20px))`,
+    };
+  } else if (fade === "out") {
+    cardStyle = {
+      animation: "fadeOut 0.5s ease-in-out",
+      gridTemplateRows: `min(calc((100vh - var(--headersize)) * 0.75 / ${numCol} - 16px), calc(75vw / ${numCol}) - 16px) min(max(calc((100vh - var(--headersize)) * 0.75 / ${numCol} / 4 - 16px), 20px), max(calc(75vw / ${numCol} / 4 - 16px), 20px))`,
+    };
+  } else {
+    cardStyle = {
+      gridTemplateRows: `min(calc((100vh - var(--headersize)) * 0.75 / ${numCol} - 16px), calc(75vw / ${numCol}) - 16px) min(max(calc((100vh - var(--headersize)) * 0.75 / ${numCol} / 4 - 16px), 20px), max(calc(75vw / ${numCol} / 4 - 16px), 20px))`,
+    };
+  }
 
   let divStyle;
   if (character.name.length < 17) {
@@ -53,7 +73,7 @@ function Card({ level, numCol, character, onClick }) {
   );
 }
 
-function Gameboard({ level, characters, onClick }) {
+function Gameboard({ level, characters, onClick, fade }) {
   let cards = [];
   let numCol = Math.ceil(Math.sqrt(characters.length));
 
@@ -65,6 +85,7 @@ function Gameboard({ level, characters, onClick }) {
         level={level}
         onClick={onClick}
         numCol={numCol}
+        fade={fade}
       />
     );
   }
@@ -92,6 +113,7 @@ function App() {
   const [available, setAvailable] = useState([]);
   const [guessed, setGuessed] = useState([]);
   const [characters, setCharacters] = useState([]);
+  const [fade, setFade] = useState("in");
 
   const [level, setLevel] = useState(0);
   const levels = [4, 9, 16, 25, 36, 49];
@@ -130,7 +152,9 @@ function App() {
     return characterInfos;
   }
 
-  function getData(receivedData) {
+  async function getData(receivedData) {
+    setFade("out");
+    await new Promise((resolve) => setTimeout(resolve, 500));
     if (guessed.includes(receivedData)) {
       setHighscore(score);
       console.log("Game Over!");
@@ -138,7 +162,6 @@ function App() {
     } else {
       guessCorrect(receivedData);
     }
-    console.log(available);
     if (available.length !== 1) {
       nextRound();
     } else {
@@ -157,11 +180,13 @@ function App() {
   function nextRound() {
     const newCards = fetchCards();
     setCharacters(newCards);
+    setFade("in");
   }
 
   function nextLevel(newLevel) {
     setLevel(newLevel);
     setIsBusy(true);
+    setFade("in");
   }
 
   useEffect(() => {
@@ -192,7 +217,12 @@ function App() {
         <Score score={score} />
       </div>
       {!isBusy && (
-        <Gameboard level={level} characters={characters} onClick={getData} />
+        <Gameboard
+          level={level}
+          characters={characters}
+          onClick={getData}
+          fade={fade}
+        />
       )}
     </>
   );
