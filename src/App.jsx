@@ -124,7 +124,13 @@ function App() {
     let guardian = new Set();
     while (ids.length < count) {
       const randomId = Math.floor(Math.random() * 826);
-      if (guardian.has(randomId) || randomId === 19 || randomId === 249) {
+      if (
+        guardian.has(randomId) ||
+        randomId === 19 ||
+        randomId === 66 ||
+        randomId === 189 ||
+        randomId === 249
+      ) {
         continue;
       }
       guardian.add(randomId);
@@ -154,10 +160,10 @@ function App() {
 
   async function getData(receivedData) {
     setFade("out");
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 400));
     if (guessed.includes(receivedData)) {
-      setHighscore(score);
-      console.log("Game Over!");
+      if (score > highscore) setHighscore(score);
+      setScore(0);
       nextLevel(0);
     } else {
       guessCorrect(receivedData);
@@ -180,13 +186,12 @@ function App() {
   function nextRound() {
     const newCards = fetchCards();
     setCharacters(newCards);
+    console.log(guessed);
     setFade("in");
   }
 
   function nextLevel(newLevel) {
     setLevel(newLevel);
-    setIsBusy(true);
-    setFade("in");
   }
 
   useEffect(() => {
@@ -195,6 +200,7 @@ function App() {
       const response = await fetch(url + `${dataset}`);
       const apiData = await response.json();
       setData(apiData);
+      console.log(apiData);
     };
     fetchData();
   }, [numCharacters]);
@@ -203,7 +209,9 @@ function App() {
     const reloadGameboard = () => {
       setCharacters(data);
       setAvailable(data);
+      setGuessed([]);
       setIsBusy(false);
+      setFade("in");
     };
     reloadGameboard();
   }, [data]);
