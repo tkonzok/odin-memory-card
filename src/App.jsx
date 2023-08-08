@@ -32,7 +32,7 @@ function Modal({ success, newHighscore, level }) {
           }}
         >
           <img
-            src="../src/assets/instructions.png"
+            src="./assets/instructions.png"
             style={{ width: "min(70vh, 70vw)", height: "min(70vh, 70vw)" }}
           ></img>
           <p style={{ fontSize: "min(max(4vh, 20px), max(4vw, 20px))" }}>
@@ -45,7 +45,7 @@ function Modal({ success, newHighscore, level }) {
       {success === true && (
         <div className="modal">
           <img
-            src="../src/assets/success.png"
+            src="./assets/success.png"
             style={{ width: "min(60vh, 60vw)", height: "min(60vh, 60vw)" }}
           ></img>
           <p style={{ fontSize: "min(max(4vh, 32px), max(4vw, 32px))" }}>
@@ -59,7 +59,7 @@ function Modal({ success, newHighscore, level }) {
             Game over!
           </p>
           <img
-            src="../src/assets/gameover.png"
+            src="./assets/gameover.png"
             style={{ width: "min(50vh, 50vw)", height: "min(50vh, 50vw)" }}
           ></img>
           {newHighscore === true && (
