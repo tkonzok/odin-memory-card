@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Footer from "./Footer.jsx";
 import "./App.css";
 
 import image1 from "./assets/instructions.png";
@@ -169,6 +170,7 @@ function Gameboard({ level, characters, onClick, fade }) {
 function App() {
   const url = "https://rickandmortyapi.com/api/character/";
 
+  const [error, setError] = useState(null);
   const [isBusy, setIsBusy] = useState(true);
   const [highscore, setHighscore] = useState(0);
   const [score, setScore] = useState(0);
@@ -281,9 +283,16 @@ function App() {
     if (numCharacters > 0) {
       const dataset = getRandomDataset(numCharacters);
       const fetchData = async () => {
-        const response = await fetch(url + `${dataset}`);
-        const apiData = await response.json();
-        setData(apiData);
+        try {
+          const response = await fetch(url + `${dataset}`);
+          if (response.status >= 400) {
+            throw new Error("server error");
+          }
+          const apiData = await response.json();
+          setData(apiData);
+        } catch (error) {
+          setError(error);
+        }
       };
       fetchData();
     }
@@ -303,6 +312,9 @@ function App() {
     setFade("in");
     setSuccess(true);
   }, [characters]);
+
+  if (error)
+    return <p>Error while retreiving data. Please re-load the page.</p>;
 
   return (
     <>
@@ -328,6 +340,7 @@ function App() {
           newHighscore={score >= highscore}
         />
       )}
+      <Footer />
     </>
   );
 }
